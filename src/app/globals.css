@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-void: #0a0a12;
+    --color-cosmos: #12101f;
+    --color-nebula: #1c1a2e;
+    --color-stardust: #2a2745;
+
+    --color-aurora-start: #7c3aed;
+    --color-aurora-mid: #a855f7;
+    --color-aurora-end: #c084fc;
+
+    --color-glow-pink: #f472b6;
+    --color-glow-cyan: #22d3ee;
+    --color-glow-amber: #fbbf24;
+
+    --color-text-primary: #f0eef6;
+    --color-text-secondary: #a8a3c0;
+    --color-text-tertiary: #6b6589;
+
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.10);
+    --glass-blur: 16px;
+
+    --glow-purple: 0 0 60px rgba(124, 58, 237, 0.3);
+    --glow-pink: 0 0 40px rgba(244, 114, 182, 0.2);
+
+    --section-padding: clamp(4rem, 8vw, 8rem);
+    --content-max-width: 1200px;
+    --card-radius: 1rem;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--color-void);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.3);
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-aurora-start), var(--color-glow-pink), var(--color-glow-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-glow {
+    background: linear-gradient(135deg, var(--color-aurora-start), var(--color-glow-pink));
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+    transition: all 0.3s ease;
+  }
+  .btn-glow:hover {
+    box-shadow: 0 0 50px rgba(124, 58, 237, 0.5);
+    transform: scale(1.02);
+  }
+}
