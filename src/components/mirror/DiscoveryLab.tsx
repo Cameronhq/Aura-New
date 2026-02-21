@@ -1,8 +1,10 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { FlaskConical, ChevronRight } from "lucide-react";
+import { ChatTestModal } from "./ChatTestModal";
 
 const tests = [
   {
@@ -29,6 +31,8 @@ const tests = [
 ];
 
 export function DiscoveryLab() {
+  const [activeTest, setActiveTest] = useState<string | null>(null);
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
@@ -46,6 +50,7 @@ export function DiscoveryLab() {
             transition={{ delay: index * 0.1 }}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
+            onClick={() => test.status === "available" && setActiveTest(test.id)}
           >
             <GlassCard padding="sm" hover>
               <div className="flex items-center gap-3">
@@ -70,6 +75,15 @@ export function DiscoveryLab() {
           </motion.button>
         ))}
       </div>
+
+      <AnimatePresence>
+        {activeTest && (
+          <ChatTestModal
+            testId={activeTest}
+            onClose={() => setActiveTest(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

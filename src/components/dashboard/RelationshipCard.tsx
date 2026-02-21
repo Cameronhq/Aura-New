@@ -19,7 +19,7 @@ export function RelationshipCard({ relationship, index }: RelationshipCardProps)
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: index * 0.1 }}
       >
-        <GlassCard hover padding="sm" className="w-[200px] shrink-0">
+        <GlassCard hover padding="sm" className="w-full">
           <div className="flex flex-col items-center text-center">
             {/* Avatar with health glow */}
             <div className="relative mb-3">

@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import { GlassCard } from "@/components/shared/GlassCard";
-import { mockReflections } from "@/data/mock-reflections";
+import { useDashboardStore } from "@/stores/dashboardStore";
 import { Clock } from "lucide-react";
 
 const moodEmoji: Record<string, string> = {
@@ -14,6 +14,8 @@ const moodEmoji: Record<string, string> = {
 };
 
 export function ReflectionTimeline() {
+  const { reflections } = useDashboardStore();
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
@@ -26,7 +28,7 @@ export function ReflectionTimeline() {
         <div className="absolute left-4 top-0 bottom-0 w-px bg-white/10" />
 
         <div className="space-y-4">
-          {mockReflections.map((reflection, index) => (
+          {reflections.map((reflection, index) => (
             <motion.div
               key={reflection.id}
               className="relative pl-10"

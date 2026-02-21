@@ -21,7 +21,7 @@ const GradientBackground = dynamic(
 export default function RelationshipDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const { relationship, feed, loadRelationship, addMessage } =
+  const { relationship, feed, loadRelationship, addMessage, addDatePlan, addGiftList, addSosReply } =
     useRelationshipStore();
 
   useEffect(() => {
@@ -33,14 +33,22 @@ export default function RelationshipDetailPage() {
   };
 
   const handleMenuSelect = (menuId: string) => {
-    // For now, just add a placeholder message
-    const labels: Record<string, string> = {
-      date: "帮我策划一次约会",
-      gift: "帮我挑选礼物",
-      sos: "帮我紧急回复",
-      voice: "开始语音复盘",
-    };
-    addMessage(labels[menuId] || menuId);
+    switch (menuId) {
+      case "date":
+        addDatePlan();
+        break;
+      case "gift":
+        addGiftList();
+        break;
+      case "sos":
+        addSosReply();
+        break;
+      case "voice":
+        addMessage("开始语音复盘");
+        break;
+      default:
+        addMessage(menuId);
+    }
   };
 
   if (!relationship) {
