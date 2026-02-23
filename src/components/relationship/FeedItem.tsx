@@ -12,6 +12,7 @@ import {
   Copy,
   RefreshCw,
   Check,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,9 +29,22 @@ const typeIcons: Record<string, React.ElementType> = {
   "sos-reply": AlertCircle,
 };
 
+const toneLabels: Record<string, string> = {
+  fox: "🦊 狐狸模式",
+  dog: "🐕 忠犬模式",
+  owl: "🦉 猫头鹰模式",
+};
+
+const magicLoadingLabels: Record<string, string> = {
+  "date-plan": "策划约会中...",
+  "gift-list": "寻找礼物中...",
+  "sos-reply": "生成回复中...",
+};
+
 export function FeedItem({ item, index }: FeedItemProps) {
   const Icon = typeIcons[item.type] || MessageCircle;
   const isConsultation = item.type === "date-plan" || item.type === "gift-list" || item.type === "sos-reply";
+  const isMagicStreaming = isConsultation && item.isStreaming;
 
   return (
     <motion.div
@@ -50,6 +64,37 @@ export function FeedItem({ item, index }: FeedItemProps) {
               <Icon className="w-4 h-4 text-text-secondary" />
             </div>
             <div className="flex-1">
+              {/* Screenshot image grid */}
+              {item.type === "screenshot" && item.evidence?.screenshots && item.evidence.screenshots.length > 0 && (
+                <div
+                  className={cn(
+                    "grid gap-2 mb-2",
+                    item.evidence.screenshots.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                  )}
+                >
+                  {item.evidence.screenshots.map((src, i) => (
+                    <div key={i} className="relative overflow-hidden rounded-xl">
+                      <img
+                        src={src}
+                        alt=""
+                        className="w-full max-h-48 object-cover rounded-xl"
+                      />
+                      {item.isStreaming && (
+                        <div className="absolute inset-0 bg-void/50 animate-pulse rounded-xl" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Screenshot loading indicator */}
+              {item.type === "screenshot" && item.isStreaming && (
+                <div className="flex items-center gap-2 mb-2 text-text-tertiary text-xs">
+                  <Loader2 className="w-3 h-3 animate-spin text-aurora-mid" />
+                  <span>军师正在分析截图...</span>
+                </div>
+              )}
+
               <p className="text-text-primary text-sm leading-relaxed">
                 {item.content}
               </p>
@@ -63,7 +108,7 @@ export function FeedItem({ item, index }: FeedItemProps) {
               </p>
 
               {/* Signal tags */}
-              {item.evidence?.signals && (
+              {item.evidence?.signals && item.evidence.signals.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {item.evidence.signals.map((signal) => (
                     <span
@@ -80,7 +125,7 @@ export function FeedItem({ item, index }: FeedItemProps) {
         </GlassCard>
       )}
 
-      {/* Consultation layer - AI response */}
+      {/* Consultation layer - AI response (streaming or done) */}
       {item.consultation && (
         <div className="ml-4 border-l-2 border-aurora-start/30 pl-3">
           <GlassCard
@@ -89,13 +134,35 @@ export function FeedItem({ item, index }: FeedItemProps) {
           >
             <p className="text-text-primary text-sm leading-relaxed">
               {item.consultation.response}
+              {item.isStreaming && (
+                <motion.span
+                  className="inline-block w-0.5 h-4 bg-aurora-mid ml-0.5 align-middle"
+                  animate={{ opacity: [1, 0] }}
+                  transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
+                />
+              )}
             </p>
+            {!item.isStreaming && item.consultation.response && (
+              <p className="text-text-tertiary text-[10px] mt-2">
+                {toneLabels[item.consultation.tone] || toneLabels.fox}
+              </p>
+            )}
           </GlassCard>
         </div>
       )}
 
+      {/* Magic menu items: loading state */}
+      {isMagicStreaming && (
+        <GlassCard padding="sm" className="bg-white/5">
+          <div className="flex items-center gap-2 text-text-secondary text-sm">
+            <Loader2 className="w-4 h-4 animate-spin text-aurora-mid" />
+            <span>{magicLoadingLabels[item.type] || "生成中..."}</span>
+          </div>
+        </GlassCard>
+      )}
+
       {/* Date plan card */}
-      {item.datePlan && (
+      {item.datePlan && !item.isStreaming && (
         <GlassCard padding="sm" className="bg-glow-cyan/5 border-glow-cyan/20">
           <div className="flex items-center gap-2 mb-3">
             <Calendar className="w-4 h-4 text-glow-cyan" />
@@ -128,7 +195,7 @@ export function FeedItem({ item, index }: FeedItemProps) {
       )}
 
       {/* Gift list card */}
-      {item.giftList && (
+      {item.giftList && !item.isStreaming && (
         <GlassCard padding="sm" className="bg-glow-amber/5 border-glow-amber/20">
           <div className="flex items-center gap-2 mb-3">
             <Gift className="w-4 h-4 text-glow-amber" />
@@ -151,7 +218,7 @@ export function FeedItem({ item, index }: FeedItemProps) {
       )}
 
       {/* SOS replies */}
-      {item.sosReplies && (
+      {item.sosReplies && !item.isStreaming && (
         <GlassCard padding="sm" className="bg-glow-pink/5 border-glow-pink/20">
           <div className="flex items-center gap-2 mb-3">
             <AlertCircle className="w-4 h-4 text-glow-pink" />

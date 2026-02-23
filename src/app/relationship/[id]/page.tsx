@@ -21,15 +21,19 @@ const GradientBackground = dynamic(
 export default function RelationshipDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const { relationship, feed, loadRelationship, addMessage, addDatePlan, addGiftList, addSosReply } =
+  const { relationship, feed, loadRelationship, addMessage, addScreenshot, addDatePlan, addGiftList, addSosReply } =
     useRelationshipStore();
 
   useEffect(() => {
     loadRelationship(id);
   }, [id, loadRelationship]);
 
-  const handleSend = (text: string) => {
-    addMessage(text);
+  const handleSend = (text: string, images?: string[]) => {
+    if (images && images.length > 0) {
+      addScreenshot(images, text || undefined);
+    } else {
+      addMessage(text);
+    }
   };
 
   const handleMenuSelect = (menuId: string) => {
