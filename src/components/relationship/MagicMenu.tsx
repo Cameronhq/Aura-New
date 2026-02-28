@@ -25,7 +25,7 @@ export function MagicMenu({ onSelect }: MagicMenuProps) {
           <>
             {/* Backdrop */}
             <motion.div
-              className="fixed inset-0 bg-black/40 z-40"
+              className="fixed inset-0 bg-black/40 z-30"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -42,7 +42,7 @@ export function MagicMenu({ onSelect }: MagicMenuProps) {
               {menuItems.map((item, index) => (
                 <motion.button
                   key={item.id}
-                  className="flex items-center gap-3 glass-card px-4 py-3 w-48 hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-3 bg-nebula border border-white/15 rounded-2xl shadow-xl px-4 py-3 w-48 hover:bg-stardust transition-colors"
                   initial={{ opacity: 0, x: -20, scale: 0.8 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={{ opacity: 0, x: -20, scale: 0.8 }}

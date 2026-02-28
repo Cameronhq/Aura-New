@@ -49,6 +49,20 @@ export function RelationshipCard({ relationship, index }: RelationshipCardProps)
             <p className="text-text-tertiary text-[10px] mt-2">
               {relationship.lastActivity}
             </p>
+
+            {/* Aura score bar */}
+            <div className="w-full mt-2.5">
+              <div className="h-1 w-full rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${relationship.auraScore}%`,
+                    backgroundColor: relationship.healthColor || "#a855f7",
+                    opacity: 0.7,
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </GlassCard>
       </motion.div>

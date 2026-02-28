@@ -41,7 +41,12 @@ export function IdentityStep() {
         <input
           type="date"
           value={birthday}
-          onChange={(e) => setField("birthday", e.target.value)}
+          min="1920-01-01"
+          max={new Date().toISOString().split("T")[0]}
+          onChange={(e) => {
+            const year = e.target.value.split("-")[0];
+            if (year.length <= 4) setField("birthday", e.target.value);
+          }}
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-text-primary focus:outline-none focus:border-aurora-mid/50 transition-colors"
         />
       </div>

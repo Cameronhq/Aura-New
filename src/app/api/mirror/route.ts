@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  baseURL: "https://api.deepseek.com",
+  apiKey: process.env.DASHSCOPE_API_KEY,
+  baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
 });
 
 const MIRROR_SYSTEM_PROMPT = `你是Aura的每日镜像——一个温柔的回声和内心的镜子。用户分享了他们的自我反思，你的角色是：
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const messages: Array<{ role: string; content: string }> = body.messages;
 
     const stream = await client.chat.completions.create({
-      model: "deepseek-chat",
+      model: "qwen-max",
       stream: true,
       messages: [
         { role: "system", content: ADVISOR_SYSTEM_PROMPT },
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   const { question, answer } = body;
 
   const stream = await client.chat.completions.create({
-    model: "deepseek-chat",
+    model: "qwen-max",
     stream: true,
     messages: [
       { role: "system", content: MIRROR_SYSTEM_PROMPT },

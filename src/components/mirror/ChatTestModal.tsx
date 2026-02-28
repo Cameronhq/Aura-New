@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Send } from "lucide-react";
 
@@ -120,7 +121,7 @@ export function ChatTestModal({ testId, onClose }: ChatTestModalProps) {
     }
   };
 
-  return (
+  const modal = (
     <motion.div
       className="fixed inset-0 z-50 flex flex-col bg-void/95 backdrop-blur-xl"
       initial={{ opacity: 0 }}
@@ -201,7 +202,7 @@ export function ChatTestModal({ testId, onClose }: ChatTestModalProps) {
 
       {/* Input */}
       {!isComplete && (
-        <div className="px-4 py-3 border-t border-white/10">
+        <div className="px-4 py-3 border-t border-white/10" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
           <div className="flex gap-2">
             <input
               type="text"
@@ -224,4 +225,6 @@ export function ChatTestModal({ testId, onClose }: ChatTestModalProps) {
       )}
     </motion.div>
   );
+
+  return createPortal(modal, document.body);
 }

@@ -4,6 +4,7 @@ export interface Relationship {
   avatar: string;
   type: "crush" | "partner" | "ex" | "friend" | "complicated";
   status: "active" | "paused" | "ended";
+  birthday?: string;
   zodiac?: string;
   platform?: string;
   lastInteraction: string;
@@ -11,6 +12,11 @@ export interface Relationship {
   auraScore: number;
   tags: string[];
   healthColor?: string;
+  // Relationship context for AI advisor
+  acquaintanceDuration?: string;
+  currentStage?: string;
+  interactionFrequency?: string;
+  recentNote?: string;
 }
 
 export interface FeedItem {
@@ -24,6 +30,7 @@ export interface FeedItem {
     analysis: string;
     signals: string[];
     confidence: number;
+    visionError?: string;
   };
   consultation?: {
     response: string;
@@ -44,6 +51,8 @@ export interface FeedItem {
     }>;
   };
   sosReplies?: string[];
+  isStreaming?: boolean;
+  magicInputs?: Record<string, string>;
 }
 
 export interface Reflection {

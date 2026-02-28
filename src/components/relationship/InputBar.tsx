@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ImageIcon, Send, X } from "lucide-react";
+import { ImageIcon, Send, X, CalendarHeart, Gift, AlertCircle, Camera } from "lucide-react";
 import { MagicMenu } from "./MagicMenu";
 
 interface InputBarProps {
@@ -60,8 +60,13 @@ export function InputBar({ onSend, onMenuSelect }: InputBarProps) {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const haptic = (ms = 40) => {
+    try { navigator.vibrate?.(ms); } catch { /* not supported */ }
+  };
+
   const handleSend = () => {
     if (!text.trim() && selectedImages.length === 0) return;
+    haptic();
     if (selectedImages.length > 0) {
       onSend(text.trim(), selectedImages);
     } else {
@@ -80,8 +85,42 @@ export function InputBar({ onSend, onMenuSelect }: InputBarProps) {
 
   const canSend = text.trim().length > 0 || selectedImages.length > 0;
 
+  const quickChips = [
+    { id: "screenshot", label: "截图分析", icon: Camera, color: "text-aurora-mid" },
+    { id: "date", label: "约会方案", icon: CalendarHeart, color: "text-glow-cyan" },
+    { id: "gift", label: "礼物推荐", icon: Gift, color: "text-glow-amber" },
+    { id: "sos", label: "紧急回复", icon: AlertCircle, color: "text-glow-pink" },
+  ] as const;
+
+  const handleChip = (id: string) => {
+    if (id === "screenshot") {
+      fileInputRef.current?.click();
+    } else {
+      onMenuSelect(id);
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-void/90 backdrop-blur-xl">
+      {/* Quick action chips */}
+      <div className="max-w-lg mx-auto px-3 pt-2.5 pb-1">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none">
+          {quickChips.map((chip) => {
+            const Icon = chip.icon;
+            return (
+              <button
+                key={chip.id}
+                onClick={() => handleChip(chip.id)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-text-secondary hover:bg-white/10 transition-colors shrink-0 whitespace-nowrap"
+              >
+                <Icon className={`w-3 h-3 ${chip.color}`} />
+                {chip.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Image preview strip */}
       <AnimatePresence>
         {selectedImages.length > 0 && (

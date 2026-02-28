@@ -4,16 +4,26 @@ import { motion } from "motion/react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { useDashboardStore } from "@/stores/dashboardStore";
 import { useEffect } from "react";
-import { User, Sparkles } from "lucide-react";
+import { User, Sparkles, RefreshCw } from "lucide-react";
 
 export function AuraProfileCard() {
-  const { user, loadDashboard } = useDashboardStore();
+  const { user, loadDashboard, auraProfile, isGeneratingProfile, generateAuraProfile } =
+    useDashboardStore();
 
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
 
   if (!user) return null;
+
+  const vibeSummary: Record<string, string> = {
+    fox: "你目光如炬，擅长洞察关系中的微妙信号。你的策略感让你在感情中总能保持清醒，但也要记得偶尔让直觉带路。",
+    dog: "你温暖真诚，是身边人最可靠的支撑。你在感情中给予毫不吝啬，记得也要为自己留一份爱。",
+    owl: "你智慧深邃，看待关系总能兼顾理性与感性。你的平衡感是你最大的礼物，也是对方最安心的港湾。",
+  };
+
+  // Use AI-generated labels if available, fall back to vibe defaults
+  const displayLabels = auraProfile?.labels?.length ? auraProfile.labels : user.auraLabels;
 
   return (
     <GlassCard className="relative overflow-hidden">
@@ -53,7 +63,7 @@ export function AuraProfileCard() {
             visible: { transition: { staggerChildren: 0.1 } },
           }}
         >
-          {user.auraLabels.map((label) => (
+          {displayLabels.map((label) => (
             <motion.span
               key={label}
               className="px-3 py-1 rounded-full text-xs bg-aurora-start/20 text-aurora-end border border-aurora-start/30"
@@ -69,14 +79,48 @@ export function AuraProfileCard() {
 
         {/* Aura summary */}
         <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-aurora-mid" />
-            <span className="text-text-secondary text-sm">灵气摘要</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-aurora-mid" />
+              <span className="text-text-secondary text-sm">灵气摘要</span>
+            </div>
+            {/* Refresh button — only shown when a profile exists */}
+            {auraProfile && (
+              <button
+                onClick={generateAuraProfile}
+                disabled={isGeneratingProfile}
+                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors disabled:opacity-40"
+                title="更新灵气档案"
+              >
+                <RefreshCw
+                  className={`w-3.5 h-3.5 text-text-tertiary ${isGeneratingProfile ? "animate-spin" : ""}`}
+                />
+              </button>
+            )}
           </div>
-          <p className="text-text-primary text-sm leading-relaxed">
-            你是一个高度敏感且富有共情力的人。在亲密关系中，你倾向于优先满足对方的需求，
-            有时会忽略自己的感受。你正在学习建立更健康的边界。
-          </p>
+
+          {isGeneratingProfile ? (
+            <motion.p
+              className="text-text-tertiary text-sm leading-relaxed"
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              灵气分析中…
+            </motion.p>
+          ) : (
+            <p className="text-text-primary text-sm leading-relaxed">
+              {auraProfile?.summary || vibeSummary[user.consultantVibe] || vibeSummary.fox}
+            </p>
+          )}
+
+          {auraProfile && (
+            <p className="text-text-tertiary text-[10px] mt-2">
+              {new Date(auraProfile.generatedAt).toLocaleDateString("zh-CN", {
+                month: "short",
+                day: "numeric",
+              })} 更新
+            </p>
+          )}
         </div>
       </div>
     </GlassCard>

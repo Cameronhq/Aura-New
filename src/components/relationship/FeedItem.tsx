@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "motion/react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { FeedItem as FeedItemType } from "@/types/relationship";
@@ -13,12 +14,16 @@ import {
   RefreshCw,
   Check,
   Loader2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FeedItemProps {
   item: FeedItemType;
   index: number;
+  onAdopt?: (itemId: string) => void;
+  onRegenerate?: (itemId: string) => void;
 }
 
 const typeIcons: Record<string, React.ElementType> = {
@@ -41,10 +46,64 @@ const magicLoadingLabels: Record<string, string> = {
   "sos-reply": "生成回复中...",
 };
 
-export function FeedItem({ item, index }: FeedItemProps) {
+function formatDatePlanText(item: FeedItemType): string {
+  if (!item.datePlan) return "";
+  const { title, location, activities, estimated_cost } = item.datePlan;
+  return [
+    `约会方案：${title}`,
+    `地点：${location}`,
+    `活动：${activities.join(" · ")}`,
+    `预算：${estimated_cost}`,
+  ].join("\n");
+}
+
+function formatGiftListText(item: FeedItemType): string {
+  if (!item.giftList) return "";
+  const lines = item.giftList.items.map(
+    (g, i) => `${i + 1}. ${g.name}（${g.price}）— ${g.reason}`
+  );
+  return `礼物推荐：\n${lines.join("\n")}`;
+}
+
+export function FeedItem({ item, index, onAdopt, onRegenerate }: FeedItemProps) {
+  const [adopted, setAdopted] = useState(false);
+  const [copiedSos, setCopiedSos] = useState<number | null>(null);
+
   const Icon = typeIcons[item.type] || MessageCircle;
   const isConsultation = item.type === "date-plan" || item.type === "gift-list" || item.type === "sos-reply";
   const isMagicStreaming = isConsultation && item.isStreaming;
+
+  const haptic = (ms = 40) => {
+    try { navigator.vibrate?.(ms); } catch { /* not supported */ }
+  };
+
+  const handleAdopt = async () => {
+    let text = "";
+    if (item.datePlan) text = formatDatePlanText(item);
+    else if (item.giftList) text = formatGiftListText(item);
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // clipboard may be unavailable in some environments
+    }
+    haptic();
+    setAdopted(true);
+    onAdopt?.(item.id);
+    setTimeout(() => setAdopted(false), 2000);
+  };
+
+  const handleCopySos = async (reply: string, idx: number) => {
+    try {
+      await navigator.clipboard.writeText(reply);
+    } catch {
+      // clipboard may be unavailable
+    }
+    haptic();
+    setCopiedSos(idx);
+    setTimeout(() => setCopiedSos(null), 2000);
+  };
 
   return (
     <motion.div
@@ -107,17 +166,32 @@ export function FeedItem({ item, index }: FeedItemProps) {
                 })}
               </p>
 
+              {/* Analysis text (from vision AI) */}
+              {item.evidence?.analysis && (
+                <p className="text-text-secondary text-xs leading-relaxed mt-2">
+                  {item.evidence.analysis}
+                </p>
+              )}
+
               {/* Signal tags */}
               {item.evidence?.signals && item.evidence.signals.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {item.evidence.signals.map((signal) => (
                     <span
                       key={signal}
-                      className="px-2 py-0.5 rounded-full text-[10px] bg-white/5 text-text-tertiary border border-white/10"
+                      className="px-2 py-0.5 rounded-full text-[10px] bg-aurora-start/15 text-aurora-end border border-aurora-start/20"
                     >
                       {signal}
                     </span>
                   ))}
+                </div>
+              )}
+
+              {/* Vision unavailable banner */}
+              {item.evidence?.visionError && (
+                <div className="flex items-center gap-1.5 mt-2 px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08]">
+                  <EyeOff className="w-3 h-3 text-text-tertiary shrink-0" />
+                  <span className="text-text-tertiary text-[10px]">图片内容无法识别 — 配置 ANTHROPIC_API_KEY 可启用截图分析</span>
                 </div>
               )}
             </div>
@@ -184,10 +258,17 @@ export function FeedItem({ item, index }: FeedItemProps) {
             预算：{item.datePlan.estimated_cost}
           </p>
           <div className="flex gap-2 mt-3">
-            <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-glow-cyan/20 text-glow-cyan text-xs hover:bg-glow-cyan/30 transition-colors">
-              <Check className="w-3 h-3" /> 采纳
+            <button
+              onClick={handleAdopt}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-glow-cyan/20 text-glow-cyan text-xs hover:bg-glow-cyan/30 transition-colors"
+            >
+              <Check className="w-3 h-3" />
+              {adopted ? "已复制" : "采纳"}
             </button>
-            <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 text-text-secondary text-xs hover:bg-white/10 transition-colors">
+            <button
+              onClick={() => onRegenerate?.(item.id)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 text-text-secondary text-xs hover:bg-white/10 transition-colors"
+            >
               <RefreshCw className="w-3 h-3" /> 重新生成
             </button>
           </div>
@@ -214,6 +295,21 @@ export function FeedItem({ item, index }: FeedItemProps) {
               </div>
             ))}
           </div>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={handleAdopt}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-glow-amber/20 text-glow-amber text-xs hover:bg-glow-amber/30 transition-colors"
+            >
+              <Check className="w-3 h-3" />
+              {adopted ? "已复制" : "采纳"}
+            </button>
+            <button
+              onClick={() => onRegenerate?.(item.id)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 text-text-secondary text-xs hover:bg-white/10 transition-colors"
+            >
+              <RefreshCw className="w-3 h-3" /> 重新生成
+            </button>
+          </div>
         </GlassCard>
       )}
 
@@ -228,12 +324,25 @@ export function FeedItem({ item, index }: FeedItemProps) {
             {item.sosReplies.map((reply, i) => (
               <button
                 key={i}
+                onClick={() => handleCopySos(reply, i)}
                 className="w-full text-left p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group flex items-center gap-2"
               >
                 <p className="text-text-primary text-sm flex-1">{reply}</p>
-                <Copy className="w-3.5 h-3.5 text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                {copiedSos === i ? (
+                  <Check className="w-3.5 h-3.5 text-glow-pink shrink-0" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                )}
               </button>
             ))}
+          </div>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => onRegenerate?.(item.id)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 text-text-secondary text-xs hover:bg-white/10 transition-colors"
+            >
+              <RefreshCw className="w-3 h-3" /> 重新生成
+            </button>
           </div>
         </GlassCard>
       )}
