@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useId } from "react";
 
 interface UploadZoneProps {
   onImagesSelected: (images: string[]) => void;
@@ -8,9 +8,13 @@ interface UploadZoneProps {
   onClear: () => void;
 }
 
+const ACCEPT = "image/png,image/jpeg,image/jpg,image/heic,image/heif,image/webp";
+
 export function UploadZone({ onImagesSelected, images, onClear }: UploadZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const inputId = useId();
+  const addInputId = useId();
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
@@ -30,6 +34,11 @@ export function UploadZone({ onImagesSelected, images, onClear }: UploadZoneProp
     });
   };
 
+  const resetInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFiles(e.target.files);
+    e.target.value = "";
+  };
+
   if (images.length > 0) {
     return (
       <div className="space-y-3">
@@ -40,13 +49,13 @@ export function UploadZone({ onImagesSelected, images, onClear }: UploadZoneProp
             </div>
           ))}
           {images.length < 4 && (
-            <button
-              onClick={() => inputRef.current?.click()}
-              className="aspect-[3/4] rounded-xl border-2 border-dashed border-[#DDD] flex flex-col items-center justify-center text-[#999] hover:border-[#999] transition-colors"
+            <label
+              htmlFor={addInputId}
+              className="aspect-[3/4] rounded-xl border-2 border-dashed border-[#DDD] flex flex-col items-center justify-center text-[#999] hover:border-[#999] transition-colors cursor-pointer active:bg-[#F5F5F3]"
             >
               <span className="text-2xl mb-1">+</span>
               <span className="text-xs">继续添加</span>
-            </button>
+            </label>
           )}
         </div>
         <button
@@ -56,23 +65,24 @@ export function UploadZone({ onImagesSelected, images, onClear }: UploadZoneProp
           清除全部重新选择
         </button>
         <input
+          id={addInputId}
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept={ACCEPT}
           multiple
           className="hidden"
-          onChange={(e) => handleFiles(e.target.files)}
+          onChange={resetInput}
         />
       </div>
     );
   }
 
   return (
-    <div
-      className={`relative rounded-2xl border-2 border-dashed transition-colors cursor-pointer ${
+    <label
+      htmlFor={inputId}
+      className={`relative block rounded-2xl border-2 border-dashed transition-colors cursor-pointer ${
         dragging ? "border-[#1A1A1A] bg-[#F5F5F3]" : "border-[#DDD] hover:border-[#999]"
       }`}
-      onClick={() => inputRef.current?.click()}
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}
       onDrop={(e) => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }}
@@ -87,16 +97,16 @@ export function UploadZone({ onImagesSelected, images, onClear }: UploadZoneProp
         </div>
         <p className="font-semibold text-[#1A1A1A] mb-1">上传聊天截图</p>
         <p className="text-sm text-[#999]">支持微信、iMessage、抖音等截图</p>
-        <p className="text-xs text-[#BBB] mt-1">最多 4 张 · 点击或拖拽</p>
+        <p className="text-xs text-[#BBB] mt-1">最多 4 张 · 点击选择照片</p>
       </div>
       <input
-        ref={inputRef}
+        id={inputId}
         type="file"
-        accept="image/*"
+        accept={ACCEPT}
         multiple
         className="hidden"
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={resetInput}
       />
-    </div>
+    </label>
   );
 }
