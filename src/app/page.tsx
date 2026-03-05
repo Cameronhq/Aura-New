@@ -15,6 +15,15 @@ const RELATIONSHIP_TYPES = [
   "朋友",
 ];
 
+const DURATION_OPTIONS = [
+  "刚认识",
+  "1-3个月",
+  "3-6个月",
+  "半年-1年",
+  "1年以上",
+  "3年以上",
+];
+
 const LOADING_STAGES = [
   "正在识别对话内容...",
   "分析 TA 的回复语气...",
@@ -30,6 +39,8 @@ export default function HomePage() {
   const [images, setImages] = useState<string[]>([]);
   const [personName, setPersonName] = useState("");
   const [personType, setPersonType] = useState("");
+  const [duration, setDuration] = useState("");
+  const [concern, setConcern] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [error, setError] = useState("");
@@ -62,6 +73,8 @@ export default function HomePage() {
           images,
           personName: personName.trim(),
           personType,
+          duration,
+          concern: concern.trim(),
           memoryContext,
         }),
       });
@@ -75,6 +88,8 @@ export default function HomePage() {
         createdAt: Date.now(),
         personName: personName.trim(),
         personType,
+        duration,
+        concern: concern.trim(),
         result: {
           score: data.score,
           scoreLabel: data.scoreLabel,
@@ -189,6 +204,39 @@ export default function HomePage() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-semibold tracking-[2px] text-[#999] uppercase block mb-2">
+                认识/在一起多久了
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {DURATION_OPTIONS.map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDuration(d)}
+                    className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      duration === d
+                        ? "bg-[#1A1A1A] text-white"
+                        : "bg-white border border-[#EEEEEC] text-[#666] hover:border-[#999]"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-semibold tracking-[2px] text-[#999] uppercase block mb-2">
+                你最想了解什么？（选填）
+              </label>
+              <input
+                value={concern}
+                onChange={(e) => setConcern(e.target.value)}
+                placeholder="例：TA 是不是不爱我了 / 该不该主动 / 这样回复正常吗"
+                className="w-full px-4 py-3 bg-white border border-[#EEEEEC] rounded-xl text-[15px] placeholder:text-[#CCC] focus:outline-none focus:border-[#999] transition-colors"
+              />
             </div>
 
             {error && (

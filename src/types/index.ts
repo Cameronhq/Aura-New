@@ -18,6 +18,8 @@ export interface Analysis {
   createdAt: number;
   personName: string;
   personType: string;
+  duration?: string;
+  concern?: string;
   result: AnalysisResult;
   chatHistory: ChatMessage[];
 }

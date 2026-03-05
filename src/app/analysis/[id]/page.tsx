@@ -6,7 +6,31 @@ import { useAppStore } from "@/stores/appStore";
 import { AnalysisCard } from "@/components/AnalysisCard";
 import { ChatPanel } from "@/components/ChatPanel";
 
-function getScoreReaction(score: number): { emoji: string; text: string } {
+function getScoreReaction(score: number, personType: string): { emoji: string; text: string } {
+  if (personType === "男/女朋友") {
+    if (score <= 25) return { emoji: "💔", text: "感情亮红灯了…需要认真面对" };
+    if (score <= 45) return { emoji: "😮‍💨", text: "TA 的投入度在下降，需要注意" };
+    if (score <= 60) return { emoji: "🤔", text: "感情处于平淡期，还不至于担心" };
+    if (score <= 75) return { emoji: "😊", text: "TA 对这段关系挺用心的" };
+    if (score <= 88) return { emoji: "🥰", text: "感情浓度很高，TA 很在乎你" };
+    return { emoji: "🔥", text: "TA 超级投入这段关系！" };
+  }
+  if (personType === "前任") {
+    if (score <= 25) return { emoji: "🙅", text: "TA 基本已经放下了" };
+    if (score <= 45) return { emoji: "😶", text: "只是礼貌性回应，别过度解读" };
+    if (score <= 60) return { emoji: "🤔", text: "有点暧昧不明，可能还没完全放下" };
+    if (score <= 75) return { emoji: "👀", text: "有留恋的信号，但还在犹豫" };
+    if (score <= 88) return { emoji: "💭", text: "TA 很可能还想着你" };
+    return { emoji: "🔥", text: "复合信号非常明显！" };
+  }
+  if (personType === "朋友") {
+    if (score <= 25) return { emoji: "🤝", text: "纯友谊，没有暧昧信号" };
+    if (score <= 45) return { emoji: "😐", text: "基本是普通朋友的互动方式" };
+    if (score <= 60) return { emoji: "🤔", text: "有一些微妙的信号，但不确定" };
+    if (score <= 75) return { emoji: "👀", text: "互动方式已经超出普通朋友了" };
+    if (score <= 88) return { emoji: "😏", text: "TA 大概率对你有意思" };
+    return { emoji: "🔥", text: "这哪是朋友，TA 明显喜欢你" };
+  }
   if (score <= 20) return { emoji: "💔", text: "形势不太妙…但知道真相比蒙在鼓里好" };
   if (score <= 40) return { emoji: "😮‍💨", text: "信号偏冷，但别急，军师帮你想办法" };
   if (score <= 55) return { emoji: "🤔", text: "不上不下的暧昧区，最让人纠结的阶段" };
@@ -114,7 +138,7 @@ export default function AnalysisPage() {
     );
   }
 
-  const reaction = getScoreReaction(analysis.result.score);
+  const reaction = getScoreReaction(analysis.result.score, analysis.personType);
 
   return (
     <div className="min-h-dvh bg-[#FAFAF8]">

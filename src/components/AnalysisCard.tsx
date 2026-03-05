@@ -16,6 +16,15 @@ function getAccentGradient(score: number): string {
   return "from-emerald-50 to-teal-50";
 }
 
+function getScoreLabel(personType: string): string {
+  switch (personType) {
+    case "男/女朋友": return "感情浓度分析";
+    case "前任": return "留恋度分析";
+    case "朋友": return "暧昧指数分析";
+    default: return "好感度分析";
+  }
+}
+
 export function AnalysisCard({ result, personName, personType }: AnalysisCardProps) {
   return (
     <div id="analysis-card" className="bg-white rounded-2xl border border-[#EEEEEC] overflow-hidden shadow-sm">
@@ -26,7 +35,7 @@ export function AnalysisCard({ result, personName, personType }: AnalysisCardPro
       <div className="px-6 pt-5 pb-3 flex items-center justify-between">
         <div>
           <p className="text-[11px] font-semibold tracking-[3px] text-[#BBB] uppercase">
-            好感度分析
+            {getScoreLabel(personType)}
           </p>
         </div>
         <div className="text-right">
@@ -77,7 +86,7 @@ export function AnalysisCard({ result, personName, personType }: AnalysisCardPro
       {/* Watermark footer */}
       <div className="border-t border-[#EEEEEC] px-6 py-3 flex items-center justify-between">
         <span className="text-[11px] font-semibold text-[#1A1A1A] tracking-tight">感情军师</span>
-        <span className="text-[10px] text-[#CCC]">AI 好感度分析 · junshi.app</span>
+        <span className="text-[10px] text-[#CCC]">AI 感情分析 · junshi.app</span>
       </div>
     </div>
   );
