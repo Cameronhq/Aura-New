@@ -11,6 +11,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "clsx": "^2.1.1",
+    "html2canvas": "^1.4.1",
     "https-proxy-agent": "^7.0.6",
     "lucide-react": "^0.575.0",
     "motion": "^12.34.3",
