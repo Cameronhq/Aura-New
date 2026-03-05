@@ -8,37 +8,54 @@ interface ChatPanelProps {
   analysis: Analysis;
 }
 
-function getQuickQuestions(score: number): string[] {
-  if (score <= 30) {
-    return [
-      "还有挽回的可能吗？",
-      "TA 是不是已经不在乎了？",
-      "我应该主动还是放手？",
-      "怎样才能重新引起 TA 注意？",
-    ];
+function getQuickQuestions(analysis: Analysis): string[] {
+  const { score } = analysis.result;
+  const type = analysis.personType;
+  const concern = analysis.concern;
+
+  const questions: string[] = [];
+
+  if (concern) {
+    questions.push(`关于「${concern.slice(0, 15)}${concern.length > 15 ? "…" : ""}」你怎么看？`);
   }
-  if (score <= 55) {
-    return [
-      "TA 到底怎么想的？",
-      "这种态度算正常吗？",
-      "我该怎么打破僵局？",
-      "接下来聊什么话题比较好？",
-    ];
+
+  if (type === "男/女朋友") {
+    if (score <= 40) {
+      questions.push("TA 是不是已经不爱我了？", "这段关系还能挽救吗？", "我该怎么跟 TA 沟通这个问题？");
+    } else if (score <= 65) {
+      questions.push("TA 是不是进入倦怠期了？", "怎么让感情升温回来？", "这种相处模式正常吗？");
+    } else {
+      questions.push("怎么让这段关系保持新鲜感？", "TA 有认真考虑未来吗？", "有什么需要注意的隐患吗？");
+    }
+  } else if (type === "前任") {
+    if (score <= 40) {
+      questions.push("TA 是真的放下了吗？", "我还该继续联系吗？", "怎么才能优雅地放手？");
+    } else if (score <= 65) {
+      questions.push("TA 是在犹豫还是只是寂寞？", "我该主动提复合吗？", "怎么试探 TA 的真实想法？");
+    } else {
+      questions.push("TA 是想复合的意思吗？", "复合后怎么避免重蹈覆辙？", "我该怎么回应 TA 的信号？");
+    }
+  } else if (type === "朋友") {
+    if (score <= 40) {
+      questions.push("TA 真的只把我当朋友吗？", "有没有可能是我想多了？", "怎么判断 TA 对我有没有意思？");
+    } else if (score <= 65) {
+      questions.push("这些暧昧信号是什么意思？", "我该不该主动表明心意？", "怎么在不破坏友谊的前提下试探？");
+    } else {
+      questions.push("TA 是不是喜欢我但不敢说？", "我该怎么捅破这层窗户纸？", "直接表白还是继续暗示？");
+    }
+  } else {
+    if (score <= 30) {
+      questions.push("TA 是不是对我没兴趣？", "我应该主动还是放手？", "怎样才能引起 TA 注意？");
+    } else if (score <= 55) {
+      questions.push("TA 到底怎么想的？", "我该怎么打破僵局？", "接下来聊什么话题好？");
+    } else if (score <= 75) {
+      questions.push("下一步该怎么推进？", "什么时候适合约 TA 出来？", "怎么判断 TA 是认真的？");
+    } else {
+      questions.push("TA 是不是喜欢我？", "该不该表白？", "怎么保持这种好的状态？");
+    }
   }
-  if (score <= 75) {
-    return [
-      "TA 对我有好感吗？",
-      "下一步该怎么推进关系？",
-      "什么时候适合约 TA 出来？",
-      "怎么判断 TA 是认真的？",
-    ];
-  }
-  return [
-    "TA 是不是喜欢我？",
-    "怎样让关系更进一步？",
-    "该不该表白？什么时候合适？",
-    "怎么保持这种好的状态？",
-  ];
+
+  return questions.slice(0, 4);
 }
 
 export function ChatPanel({ analysis }: ChatPanelProps) {
@@ -48,7 +65,7 @@ export function ChatPanel({ analysis }: ChatPanelProps) {
   const { appendChat, updateLastAssistantMessage, getMemoryForPerson } = useAppStore();
 
   const messages = analysis.chatHistory;
-  const quickQuestions = getQuickQuestions(analysis.result.score);
+  const quickQuestions = getQuickQuestions(analysis);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
